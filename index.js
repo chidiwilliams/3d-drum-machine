@@ -4,11 +4,21 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 const clearColor = 0x000000;
 const boardColor = 0x333333;
 
-const boardWidth = 1;
-const boardHeight = 1;
-const boardDepth = 0.025;
 const buttonsMargin = 0.05;
 const buttonLength = 0.20625;
+
+const numRows = 4;
+const numColumns = 8;
+const numButtons = numRows * numColumns;
+
+const buttonToButtonMargin = 0.025;
+
+const boardWidth =
+  numColumns * buttonLength +
+  (numColumns - 1) * buttonToButtonMargin +
+  2 * buttonsMargin;
+const boardHeight = 1;
+const boardDepth = 0.025;
 const buttonDepth = 0.015;
 
 const inactiveButtonColor = 0xffffff;
@@ -17,17 +27,12 @@ const scannedButtonColor = 0xbbffbb;
 
 const buttonsStartX = -boardWidth / 2 + buttonsMargin + buttonLength / 2;
 const buttonsStartY = boardHeight / 2 - buttonLength / 2 - buttonsMargin;
-const buttonToButtonMargin = 0.025;
 
-const numRows = 4;
-const numColumns = 4;
-const numButtons = numRows * numColumns;
-
-let buttonsState = 0b0100101000001001;
+let buttonsState = 0b10000000000000000000000001100000;
 
 let currentScanCol = 0;
 
-const beatInterval = 500;
+const beatInterval = 125;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -37,6 +42,8 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
 // Number of sounds must equal numRows
 const soundURLs = [
   'sounds/bass_drum.wav',
@@ -44,16 +51,19 @@ const soundURLs = [
   'sounds/low_tom.wav',
   'sounds/mid_tom.wav',
 ];
-const soundObjURLs = new Array(4);
+const soundBuffers = new Array(numRows);
 
 function fetchSounds() {
   soundURLs.forEach((url, i) => {
-    fetch(url)
-      .then((r) => r.blob())
-      .then((blob) => {
-        var url = window.URL.createObjectURL(blob);
-        soundObjURLs[i] = url;
+    const req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.responseType = 'arraybuffer';
+    req.onload = function() {
+      audioCtx.decodeAudioData(req.response, function(buffer) {
+        soundBuffers[i] = buffer;
       });
+    };
+    req.send();
   });
 }
 
@@ -143,7 +153,14 @@ const animate = function() {
 
     scannedColState.forEach((buttonState, rowNum) => {
       if (buttonState) {
-        new Audio(soundObjURLs[rowNum]).play();
+        try {
+          const source = audioCtx.createBufferSource();
+          source.buffer = soundBuffers[rowNum];
+          source.connect(audioCtx.destination);
+          source.start();
+        } catch (e) {
+          new Audio(soundURLs[rowNum]).play();
+        }
       }
     });
 
@@ -244,10 +261,6 @@ function toggleButtonState(event) {
 }
 
 window.addEventListener('mousedown', toggleButtonState);
-
-function getButton(row, column) {
-  return buttons[row * numColumns + column];
-}
 
 function setButtonAsActive(button) {
   setButtonColor(button, activeButtonColor);
