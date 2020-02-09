@@ -1,16 +1,19 @@
 {
-  "name": "piano-web",
+  "name": "3d-drum-machine",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "license": "MIT",
+  "homepage": "http://chidiwilliams.github.io/3d-drum-machine",
   "scripts": {
+    "deploy": "yarn run build && gh-pages -d dist",
     "dev": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html --public-url ."
   },
   "dependencies": {
     "three": "^0.113.2"
   },
   "devDependencies": {
+    "gh-pages": "^2.2.0",
     "parcel": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.3.1"
   }
