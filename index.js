@@ -12,6 +12,7 @@ const keyDepth = 0.015;
 
 const inactiveKeyColor = 0xffffff;
 const activeKeyColor = 0x88ee88;
+const scannedKeyColor = 0xbbffbb;
 
 const keysStartX = -boardWidth / 2 + keysMargin + keyLength / 2;
 const keysStartY = boardHeight / 2 - keyLength / 2 - keysMargin;
@@ -20,6 +21,8 @@ const keyToKeyMargin = 0.025;
 const numRows = 4;
 const numColumns = 4;
 const numKeys = numRows * numColumns;
+
+let keysState = 0b1100001000001010;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -117,6 +120,16 @@ function render() {
   renderer.render(scene, camera);
 }
 
+function updateKeysWithState() {
+  const stateArr = stateAsBinaryArray();
+
+  keys.forEach((key, i) => {
+    stateArr[i] ? setKeyAsActive(key) : setKeyAsInactive(key);
+  });
+}
+
+updateKeysWithState();
+
 animate();
 
 function redraw() {
@@ -141,10 +154,25 @@ function resizeRendererToDisplaySize(renderer) {
   return needResize;
 }
 
+function stateAsBinaryArray() {
+  return keysState
+    .toString(2)
+    .padStart(numKeys, '0')
+    .split('')
+    .map(Number);
+}
+
+function toggleStateAtIndex(row, column) {
+  const currStateAsArr = stateAsBinaryArray();
+  const index = row * numColumns + column;
+  currStateAsArr[index] = (currStateAsArr[index] + 1) % 2;
+  keysState = parseInt(currStateAsArr.join(''), 2);
+}
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-window.addEventListener('mousedown', function(event) {
+function toggleKeyState(event) {
   mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
   mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
@@ -155,18 +183,35 @@ window.addEventListener('mousedown', function(event) {
   if (intersects.length > 0) {
     const keyName = intersects[0].object.name;
     const [, row, column] = keyName.split('-').map(Number);
-    toggleKeyStatus(getKey(row, column));
+    toggleStateAtIndex(row, column);
+    updateKeysWithState();
   }
-});
+}
+
+window.addEventListener('mousedown', toggleKeyState);
 
 function getKey(row, column) {
   return keys[row * numColumns + column];
 }
 
-function toggleKeyStatus(key) {
-  key.material.color.setHex(
-    key.material.color.equals(new THREE.Color(inactiveKeyColor))
-      ? activeKeyColor
-      : inactiveKeyColor,
-  );
+function setKeyAsActive(key) {
+  setKeyColor(key, activeKeyColor);
 }
+
+function setKeyAsInactive(key) {
+  setKeyColor(key, inactiveKeyColor);
+}
+
+function setKeyColor(key, color) {
+  key.material.color.setHex(color);
+}
+
+// let currentScanCol = 0;
+// setInterval(() => {
+//   // set column keys to scan color
+//   // play sound represented by column
+//   console.log(`scanning, now on row ${currentScanCol}`);
+//   currentScanCol = (currentScanCol + 1) % numColumns;
+// }, 500);
+
+// function updateKeysStatus() {}
