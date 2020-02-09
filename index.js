@@ -24,6 +24,8 @@ const numButtons = numRows * numColumns;
 
 let buttonsState = 0b1100001000001010;
 
+let currentScanCol = 0;
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   35,
@@ -104,8 +106,6 @@ function makeButton(rowNum, colNum, disabled) {
   return button;
 }
 
-function setButtonDown(button) {}
-
 const animate = function() {
   requestAnimationFrame(animate);
   render();
@@ -126,7 +126,13 @@ function updateButtonsWithState() {
   const stateArr = stateAsBinaryArray();
 
   buttons.forEach((button, i) => {
-    stateArr[i] ? setButtonAsActive(button) : setButtonAsInactive(button);
+    if (i % numColumns == currentScanCol) {
+      setButtonAsScanned(button);
+    } else if (stateArr[i]) {
+      setButtonAsActive(button);
+    } else {
+      setButtonAsInactive(button);
+    }
   });
 }
 
@@ -204,16 +210,17 @@ function setButtonAsInactive(button) {
   setButtonColor(button, inactiveButtonColor);
 }
 
+function setButtonAsScanned(button) {
+  setButtonColor(button, scannedButtonColor);
+}
+
 function setButtonColor(button, color) {
   button.material.color.setHex(color);
 }
 
-// let currentScanCol = 0;
-// setInterval(() => {
-//   // set column buttons to scan color
-//   // play sound represented by column
-//   console.log(`scanning, now on row ${currentScanCol}`);
-//   currentScanCol = (currentScanCol + 1) % numColumns;
-// }, 500);
+setInterval(() => {
+  currentScanCol = (currentScanCol + 1) % numColumns;
+  updateButtonsWithState();
 
-// function updateButtonsStatus() {}
+  // play sound represented by column
+}, 500);
