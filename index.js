@@ -26,6 +26,8 @@ let buttonsState = 0b1100001000001010;
 
 let currentScanCol = 0;
 
+const beatInterval = 500;
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   35,
@@ -33,6 +35,28 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000,
 );
+
+// Number of sounds must equal numRows
+const soundURLs = [
+  'sounds/bass_drum.wav',
+  'sounds/snare_drum.wav',
+  'sounds/low_tom.wav',
+  'sounds/mid_tom.wav',
+];
+const soundObjURLs = new Array(4);
+
+function fetchSounds() {
+  soundURLs.forEach((url, i) => {
+    fetch(url)
+      .then((r) => r.blob())
+      .then((blob) => {
+        var url = window.URL.createObjectURL(blob);
+        soundObjURLs[i] = url;
+      });
+  });
+}
+
+fetchSounds();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -106,7 +130,25 @@ function makeButton(rowNum, colNum, disabled) {
   return button;
 }
 
+let lastTime = new Date().getTime();
 const animate = function() {
+  const curTime = new Date().getTime();
+
+  if (curTime - lastTime >= beatInterval) {
+    currentScanCol = (currentScanCol + 1) % numColumns;
+    updateButtonsWithState();
+
+    const scannedColState = getStateAsBinaryArrayAtCol(currentScanCol);
+
+    scannedColState.forEach((buttonState, rowNum) => {
+      if (buttonState) {
+        new Audio(soundObjURLs[rowNum]).play();
+      }
+    });
+
+    lastTime = curTime;
+  }
+
   requestAnimationFrame(animate);
   render();
   controls.update();
@@ -117,6 +159,10 @@ const animate = function() {
     camera.updateProjectionMatrix();
   }
 };
+
+function getStateAsBinaryArrayAtCol(colNum) {
+  return stateAsBinaryArray().filter((_, i) => i % numColumns === colNum);
+}
 
 function render() {
   renderer.render(scene, camera);
@@ -217,10 +263,3 @@ function setButtonAsScanned(button) {
 function setButtonColor(button, color) {
   button.material.color.setHex(color);
 }
-
-setInterval(() => {
-  currentScanCol = (currentScanCol + 1) % numColumns;
-  updateButtonsWithState();
-
-  // play sound represented by column
-}, 500);
