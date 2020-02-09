@@ -3,7 +3,7 @@ name: CI
 on: [push]
 
 jobs:
-  build:
+  gh-pages:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,11 +16,6 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn run build
-  gh-pages:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
       - uses: crazy-max/ghaction-github-pages@v1.2.5
         with:
           build_dir: dist
