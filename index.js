@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+const clearColor = 0x000000;
 const boardColor = 0x333333;
 
 const boardWidth = 1;
@@ -60,18 +61,18 @@ fetchSounds();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff);
+renderer.setClearColor(clearColor);
 renderer.setPixelRatio(window.devicePixelRatio);
 
 document.body.appendChild(renderer.domElement);
 
 const frontLight = new THREE.DirectionalLight(0xffffff, 1);
-frontLight.position.set(0.5, 0, 1);
+frontLight.position.set(0.5, 0, 0.7);
 scene.add(frontLight);
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.1));
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
-const backLight = new THREE.DirectionalLight(0xffffff, 1);
+const backLight = new THREE.DirectionalLight(0xffffff, 0.7);
 backLight.position.set(0, 0, -1);
 scene.add(backLight);
 
