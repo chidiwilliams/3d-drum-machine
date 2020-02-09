@@ -12,9 +12,16 @@ jobs:
         with:
           node-version: '10.x'
       - run: npm install -g yarn
-      - run: yarn install
-      - run: yarn run build
-      - name: GitHub Pages
-        uses: crazy-max/ghaction-github-pages@v1.2.5
+      - name: yarn install, build, and test
+        run: |
+          yarn install --frozen-lockfile
+          yarn run build
+  gh-pages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: crazy-max/ghaction-github-pages@v1.2.5
         with:
           build_dir: dist
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
