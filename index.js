@@ -129,10 +129,10 @@ window.addEventListener('resize', redraw);
 
 function resizeRendererToDisplaySize(renderer) {
   const canvas = renderer.domElement;
-  var width = window.innerWidth;
-  var height = window.innerHeight;
-  var canvasPixelWidth = canvas.width / window.devicePixelRatio;
-  var canvasPixelHeight = canvas.height / window.devicePixelRatio;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const canvasPixelWidth = canvas.width / window.devicePixelRatio;
+  const canvasPixelHeight = canvas.height / window.devicePixelRatio;
 
   const needResize = canvasPixelWidth !== width || canvasPixelHeight !== height;
   if (needResize) {
@@ -141,8 +141,8 @@ function resizeRendererToDisplaySize(renderer) {
   return needResize;
 }
 
-var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 window.addEventListener('mousedown', function(event) {
   mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
@@ -150,7 +150,7 @@ window.addEventListener('mousedown', function(event) {
 
   raycaster.setFromCamera(mouse, camera);
 
-  var intersects = raycaster.intersectObjects(keys);
+  const intersects = raycaster.intersectObjects(keys);
 
   if (intersects.length > 0) {
     const keyName = intersects[0].object.name;
