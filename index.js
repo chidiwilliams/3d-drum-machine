@@ -6,23 +6,23 @@ const boardColor = 0x333333;
 const boardWidth = 1;
 const boardHeight = 1;
 const boardDepth = 0.025;
-const keysMargin = 0.05;
-const keyLength = 0.20625;
-const keyDepth = 0.015;
+const buttonsMargin = 0.05;
+const buttonLength = 0.20625;
+const buttonDepth = 0.015;
 
-const inactiveKeyColor = 0xffffff;
-const activeKeyColor = 0x88ee88;
-const scannedKeyColor = 0xbbffbb;
+const inactiveButtonColor = 0xffffff;
+const activeButtonColor = 0x88ee88;
+const scannedButtonColor = 0xbbffbb;
 
-const keysStartX = -boardWidth / 2 + keysMargin + keyLength / 2;
-const keysStartY = boardHeight / 2 - keyLength / 2 - keysMargin;
-const keyToKeyMargin = 0.025;
+const buttonsStartX = -boardWidth / 2 + buttonsMargin + buttonLength / 2;
+const buttonsStartY = boardHeight / 2 - buttonLength / 2 - buttonsMargin;
+const buttonToButtonMargin = 0.025;
 
 const numRows = 4;
 const numColumns = 4;
-const numKeys = numRows * numColumns;
+const numButtons = numRows * numColumns;
 
-let keysState = 0b1100001000001010;
+let buttonsState = 0b1100001000001010;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -51,24 +51,24 @@ scene.add(backLight);
 
 camera.position.z = 3;
 
-function makeKeys() {
-  const keys = [];
+function makeButtons() {
+  const buttons = [];
 
   for (let i = 0; i < numRows; i++) {
     for (let j = 0; j < numColumns; j++) {
-      keys.push(makeKey(i, j, false));
+      buttons.push(makeButton(i, j, false));
     }
   }
 
-  return keys;
+  return buttons;
 }
 
 const board = makeBoard();
-const keys = makeKeys();
+const buttons = makeButtons();
 
 const boardGroup = new THREE.Group();
 boardGroup.add(board);
-keys.forEach((k) => {
+buttons.forEach((k) => {
   boardGroup.add(k);
 });
 boardGroup.rotation.x = -Math.PI / 6;
@@ -88,21 +88,23 @@ function makeBoard() {
   return board;
 }
 
-function makeKey(rowNum, colNum, disabled) {
-  const key = new THREE.Mesh(
-    new THREE.BoxGeometry(keyLength, keyLength, keyDepth),
+function makeButton(rowNum, colNum, disabled) {
+  const button = new THREE.Mesh(
+    new THREE.BoxGeometry(buttonLength, buttonLength, buttonDepth),
     new THREE.MeshPhongMaterial({
-      color: disabled ? activeKeyColor : inactiveKeyColor,
+      color: disabled ? activeButtonColor : inactiveButtonColor,
     }),
   );
-  key.position.x = keysStartX + colNum * (keyLength + keyToKeyMargin);
-  key.position.y = keysStartY - rowNum * (keyLength + keyToKeyMargin);
-  key.position.z = boardDepth / 2 + keyDepth / 2;
-  key.name = `key-${rowNum}-${colNum}`;
-  return key;
+  button.position.x =
+    buttonsStartX + colNum * (buttonLength + buttonToButtonMargin);
+  button.position.y =
+    buttonsStartY - rowNum * (buttonLength + buttonToButtonMargin);
+  button.position.z = boardDepth / 2 + buttonDepth / 2;
+  button.name = `button-${rowNum}-${colNum}`;
+  return button;
 }
 
-function setKeyDown(key) {}
+function setButtonDown(button) {}
 
 const animate = function() {
   requestAnimationFrame(animate);
@@ -120,15 +122,15 @@ function render() {
   renderer.render(scene, camera);
 }
 
-function updateKeysWithState() {
+function updateButtonsWithState() {
   const stateArr = stateAsBinaryArray();
 
-  keys.forEach((key, i) => {
-    stateArr[i] ? setKeyAsActive(key) : setKeyAsInactive(key);
+  buttons.forEach((button, i) => {
+    stateArr[i] ? setButtonAsActive(button) : setButtonAsInactive(button);
   });
 }
 
-updateKeysWithState();
+updateButtonsWithState();
 
 animate();
 
@@ -155,9 +157,9 @@ function resizeRendererToDisplaySize(renderer) {
 }
 
 function stateAsBinaryArray() {
-  return keysState
+  return buttonsState
     .toString(2)
-    .padStart(numKeys, '0')
+    .padStart(numButtons, '0')
     .split('')
     .map(Number);
 }
@@ -166,52 +168,52 @@ function toggleStateAtIndex(row, column) {
   const currStateAsArr = stateAsBinaryArray();
   const index = row * numColumns + column;
   currStateAsArr[index] = (currStateAsArr[index] + 1) % 2;
-  keysState = parseInt(currStateAsArr.join(''), 2);
+  buttonsState = parseInt(currStateAsArr.join(''), 2);
 }
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-function toggleKeyState(event) {
+function toggleButtonState(event) {
   mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
   mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
 
-  const intersects = raycaster.intersectObjects(keys);
+  const intersects = raycaster.intersectObjects(buttons);
 
   if (intersects.length > 0) {
-    const keyName = intersects[0].object.name;
-    const [, row, column] = keyName.split('-').map(Number);
+    const buttonName = intersects[0].object.name;
+    const [, row, column] = buttonName.split('-').map(Number);
     toggleStateAtIndex(row, column);
-    updateKeysWithState();
+    updateButtonsWithState();
   }
 }
 
-window.addEventListener('mousedown', toggleKeyState);
+window.addEventListener('mousedown', toggleButtonState);
 
-function getKey(row, column) {
-  return keys[row * numColumns + column];
+function getButton(row, column) {
+  return buttons[row * numColumns + column];
 }
 
-function setKeyAsActive(key) {
-  setKeyColor(key, activeKeyColor);
+function setButtonAsActive(button) {
+  setButtonColor(button, activeButtonColor);
 }
 
-function setKeyAsInactive(key) {
-  setKeyColor(key, inactiveKeyColor);
+function setButtonAsInactive(button) {
+  setButtonColor(button, inactiveButtonColor);
 }
 
-function setKeyColor(key, color) {
-  key.material.color.setHex(color);
+function setButtonColor(button, color) {
+  button.material.color.setHex(color);
 }
 
 // let currentScanCol = 0;
 // setInterval(() => {
-//   // set column keys to scan color
+//   // set column buttons to scan color
 //   // play sound represented by column
 //   console.log(`scanning, now on row ${currentScanCol}`);
 //   currentScanCol = (currentScanCol + 1) % numColumns;
 // }, 500);
 
-// function updateKeysStatus() {}
+// function updateButtonsStatus() {}
