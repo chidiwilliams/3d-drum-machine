@@ -23,7 +23,7 @@ const numRows = 4;
 const numColumns = 4;
 const numButtons = numRows * numColumns;
 
-let buttonsState = 0b1100001000001010;
+let buttonsState = 0b0100101000001001;
 
 let currentScanCol = 0;
 

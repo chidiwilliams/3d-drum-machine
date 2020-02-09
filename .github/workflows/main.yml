@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '10.x'
       - run: npm install -g yarn
-      - name: yarn install, build, and test
+      - name: yarn install and build
         run: |
           yarn install --frozen-lockfile
           yarn run build
