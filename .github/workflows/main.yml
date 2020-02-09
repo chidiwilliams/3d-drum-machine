@@ -1,0 +1,18 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: GitHub Action for Yarn
+      uses: Borales/actions-yarn@v2.1.0
+      with:
+        cmd: yarn run build
+    - name: GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v1.2.5
+      with:
+        build_dir: dist
