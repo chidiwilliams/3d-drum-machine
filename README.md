@@ -2,7 +2,7 @@
 
 # 3D Drum Machine
 
-A drum machine built with Three.JS
+A drum machine built with Three.JS. [View website](https://chidiwilliams.github.io/3d-drum-machine).
 
 ## How to Start
 
