@@ -5,7 +5,7 @@ const clearColor = 0x000000;
 const boardColor = 0x333333;
 
 const buttonsMargin = 0.05;
-const buttonLength = 0.1;
+const buttonLength = 0.15;
 const buttonDepth = 0.015;
 
 const numRows = 4;
@@ -50,10 +50,10 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 // Number of sounds must equal numRows
 const soundURLs = [
-  'sounds/bass_drum.wav',
   'sounds/snare_drum.wav',
-  'sounds/low_tom.wav',
   'sounds/mid_tom.wav',
+  'sounds/low_tom.wav',
+  'sounds/bass_drum.wav',
 ];
 const soundBuffers = new Array(numRows);
 
