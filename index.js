@@ -274,6 +274,7 @@ function onMouseDown(event) {
 }
 
 window.addEventListener('mousedown', onMouseDown);
+window.addEventListener('touchstart', onMouseDown);
 
 function setButtonAsActive(button) {
   setButtonColor(button, activeButtonColor);
