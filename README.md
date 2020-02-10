@@ -2,7 +2,7 @@
 
 # 3D Drum Machine
 
-A drum machine built with [Three.js](https://github.com/mrdoob/three.js/) — inspired by [Beatboxer](https://sig.gy/beatboxer)
+A drum machine built with [Three.js](https://github.com/mrdoob/three.js/). Inspired by [Beatboxer](https://sig.gy/beatboxer).
 
 [View demo](https://chidiwilliams.github.io/3d-drum-machine)
 
