@@ -5,10 +5,11 @@ const clearColor = 0x000000;
 const boardColor = 0x333333;
 
 const buttonsMargin = 0.05;
-const buttonLength = 0.20625;
+const buttonLength = 0.1;
+const buttonDepth = 0.015;
 
 const numRows = 4;
-const numColumns = 8;
+const numColumns = 16;
 const numButtons = numRows * numColumns;
 
 const buttonToButtonMargin = 0.025;
@@ -17,9 +18,11 @@ const boardWidth =
   numColumns * buttonLength +
   (numColumns - 1) * buttonToButtonMargin +
   2 * buttonsMargin;
-const boardHeight = 1;
+const boardHeight =
+  numRows * buttonLength +
+  (numRows - 1) * buttonToButtonMargin +
+  2 * buttonsMargin;
 const boardDepth = 0.025;
-const buttonDepth = 0.015;
 
 const inactiveButtonColor = 0xffffff;
 const activeButtonColor = 0x88ee88;
@@ -28,7 +31,8 @@ const scannedButtonColor = 0xbbffbb;
 const buttonsStartX = -boardWidth / 2 + buttonsMargin + buttonLength / 2;
 const buttonsStartY = boardHeight / 2 - buttonLength / 2 - buttonsMargin;
 
-let buttonsState = 0b10000000000000000000000001100000;
+let buttonsState =
+  '0100000100000001000101001001000001000001010001001010101010101010';
 
 let currentScanCol = 0;
 
@@ -142,7 +146,7 @@ function makeButton(rowNum, colNum, disabled) {
 }
 
 let lastTime = new Date().getTime();
-const animate = function() {
+function animate() {
   const curTime = new Date().getTime();
 
   if (curTime - lastTime >= beatInterval) {
@@ -151,8 +155,8 @@ const animate = function() {
 
     const scannedColState = getStateAsBinaryArrayAtCol(currentScanCol);
 
-    scannedColState.forEach((buttonState, rowNum) => {
-      if (buttonState) {
+    scannedColState.split('').forEach((buttonState, rowNum) => {
+      if (buttonState === '1') {
         try {
           const source = audioCtx.createBufferSource();
           source.buffer = soundBuffers[rowNum];
@@ -176,10 +180,13 @@ const animate = function() {
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
   }
-};
+}
 
 function getStateAsBinaryArrayAtCol(colNum) {
-  return stateAsBinaryArray().filter((_, i) => i % numColumns === colNum);
+  return buttonsState
+    .split('')
+    .filter((_, i) => i % numColumns === colNum)
+    .join('');
 }
 
 function render() {
@@ -187,12 +194,10 @@ function render() {
 }
 
 function updateButtonsWithState() {
-  const stateArr = stateAsBinaryArray();
-
   buttons.forEach((button, i) => {
-    if (i % numColumns == currentScanCol) {
+    if (i % numColumns === currentScanCol) {
       setButtonAsScanned(button);
-    } else if (stateArr[i]) {
+    } else if (buttonsState[i] === '1') {
       setButtonAsActive(button);
     } else {
       setButtonAsInactive(button);
@@ -226,19 +231,13 @@ function resizeRendererToDisplaySize(renderer) {
   return needResize;
 }
 
-function stateAsBinaryArray() {
-  return buttonsState
-    .toString(2)
-    .padStart(numButtons, '0')
-    .split('')
-    .map(Number);
-}
-
 function toggleStateAtIndex(row, column) {
-  const currStateAsArr = stateAsBinaryArray();
   const index = row * numColumns + column;
-  currStateAsArr[index] = (currStateAsArr[index] + 1) % 2;
-  buttonsState = parseInt(currStateAsArr.join(''), 2);
+  const newStateAtIndex = buttonsState[index] === '0' ? '1' : '0';
+  buttonsState =
+    buttonsState.substring(0, index) +
+    newStateAtIndex +
+    buttonsState.substring(index + 1);
 }
 
 const raycaster = new THREE.Raycaster();
