@@ -53,7 +53,7 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 // Number of sounds must equal numRows
 const soundURLs = [
@@ -77,8 +77,6 @@ function fetchSounds() {
     req.send();
   });
 }
-
-fetchSounds();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -165,10 +163,13 @@ function animate() {
     scannedColState.split('').forEach((buttonState, rowNum) => {
       if (buttonState === '1') {
         try {
-          const source = audioCtx.createBufferSource();
-          source.buffer = soundBuffers[rowNum];
-          source.connect(audioCtx.destination);
-          source.start();
+          const buffer = soundBuffers[rowNum];
+          if (audioCtx && buffer) {
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start();
+          }
         } catch (e) {
           new Audio(soundURLs[rowNum]).play();
         }
@@ -250,7 +251,12 @@ function toggleStateAtIndex(row, column) {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-function toggleButtonState(event) {
+function onMouseDown(event) {
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+    fetchSounds();
+  }
+
   mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
   mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
@@ -267,7 +273,7 @@ function toggleButtonState(event) {
   }
 }
 
-window.addEventListener('mousedown', toggleButtonState);
+window.addEventListener('mousedown', onMouseDown);
 
 function setButtonAsActive(button) {
   setButtonColor(button, activeButtonColor);
