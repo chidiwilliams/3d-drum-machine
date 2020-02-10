@@ -252,15 +252,23 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 function onMouseDown(event) {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtx.resume();
-    fetchSounds();
-  }
+  initializeAudio();
+  updateMousePosition(event.clientX, event.clientY);
+  handleMouseInteraction();
+}
 
-  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-  mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+function onTouchStart(event) {
+  initializeAudio();
+  updateMousePosition(event.touches[0].clientX, event.touches[0].clientY);
+  handleMouseInteraction();
+}
 
+function updateMousePosition(clientX, clientY) {
+  mouse.x = (clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse.y = -(clientY / renderer.domElement.clientHeight) * 2 + 1;
+}
+
+function handleMouseInteraction() {
   raycaster.setFromCamera(mouse, camera);
 
   const intersects = raycaster.intersectObjects(buttons);
@@ -274,8 +282,16 @@ function onMouseDown(event) {
   }
 }
 
+function initializeAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioCtx.resume();
+    fetchSounds();
+  }
+}
+
 window.addEventListener('mousedown', onMouseDown);
-window.addEventListener('touchstart', onMouseDown);
+window.addEventListener('touchstart', onTouchStart);
 
 function setButtonAsActive(button) {
   setButtonColor(button, activeButtonColor);
