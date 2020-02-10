@@ -16,6 +16,7 @@
   "devDependencies": {
     "gh-pages": "^2.2.0",
     "parcel": "^1.12.4",
+    "parcel-plugin-ogimage": "^1.1.0",
     "parcel-plugin-static-files-copy": "^2.3.1"
   }
 }
