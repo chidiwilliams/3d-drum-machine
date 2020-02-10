@@ -32,7 +32,7 @@ const buttonsStartX = -boardWidth / 2 + buttonsMargin + buttonLength / 2;
 const buttonsStartY = boardHeight / 2 - buttonLength / 2 - buttonsMargin;
 
 let buttonsState =
-  '0100000100000001000101001001000001000001010001001010101010101010';
+  '0100001001000110001101010010001010011010110101011000100010001000';
 
 let currentScanCol = 0;
 
