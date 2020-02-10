@@ -53,7 +53,7 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx;
 
 // Number of sounds must equal numRows
 const soundURLs = [
@@ -252,7 +252,8 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 function onMouseDown(event) {
-  if (audioCtx.state === 'suspended') {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     audioCtx.resume();
     fetchSounds();
   }
