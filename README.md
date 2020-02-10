@@ -2,16 +2,8 @@
 
 # 3D Drum Machine
 
-A drum machine built with [Three.js](https://github.com/mrdoob/three.js/)
+A drum machine built with [Three.js](https://github.com/mrdoob/three.js/) — inspired by [Beatboxer](https://sig.gy/beatboxer)
 
 [View demo](https://chidiwilliams.github.io/3d-drum-machine)
 
-## How to Start
-
-```shell
-yarn run dev
-```
-
-## Inspiration
-
-- [Beatboxer](https://sig.gy/beatboxer)
+To start in development, run: `yarn run dev`
