@@ -86,8 +86,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
   const boardGroup = new THREE.Group();
   boardGroup.add(board);
-  buttons.forEach((k) => {
-    boardGroup.add(k);
+  buttons.forEach((b) => {
+    boardGroup.add(b);
   });
   boardGroup.rotation.x = -Math.PI / 6;
   boardGroup.rotation.z = Math.PI / 36;
