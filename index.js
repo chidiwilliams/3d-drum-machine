@@ -30,13 +30,20 @@ const scannedButtonColor = 0xbbffbb;
 
 const buttonsStartX = -boardWidth / 2 + buttonsMargin + buttonLength / 2;
 const buttonsStartY = boardHeight / 2 - buttonLength / 2 - buttonsMargin;
+const DEFAULT_BUTTONS_STATE =
+  '0100001001000110001101010010001010011010110101011000100010001000';
 
 let buttonsState =
-  '0100001001000110001101010010001010011010110101011000100010001000';
+  window.location.hash.length > 1
+    ? hexToBin(window.location.hash.substring(1))
+    : DEFAULT_BUTTONS_STATE;
 
 let currentScanCol = 0;
 
 const beatInterval = 125;
+
+const MAX_BITS = 32;
+const MAX_HEX = MAX_BITS / 4;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -255,6 +262,7 @@ function toggleButtonState(event) {
     const buttonName = intersects[0].object.name;
     const [, row, column] = buttonName.split('-').map(Number);
     toggleStateAtIndex(row, column);
+    window.location.hash = binToHex(buttonsState);
     updateButtonsWithState();
   }
 }
@@ -276,3 +284,35 @@ function setButtonAsScanned(button) {
 function setButtonColor(button, color) {
   button.material.color.setHex(color);
 }
+
+function binToHex(bin) {
+  var hex = '';
+  for (let i = 0, len = bin.length; i < len; i += MAX_BITS) {
+    var tmp = parseInt(bin.substr(i, MAX_BITS), 2).toString(16);
+    while (tmp.length < MAX_HEX) {
+      tmp = '0' + tmp;
+    }
+    hex += tmp;
+  }
+  return hex;
+}
+
+function hexToBin(hex) {
+  var bin = '';
+  for (let i = 0, len = hex.length; i < len; i += MAX_HEX) {
+    var tmp = parseInt(hex.substr(i, MAX_HEX), 16).toString(2);
+    while (tmp.length < MAX_BITS) {
+      tmp = '0' + tmp;
+    }
+    bin += tmp;
+  }
+  return bin;
+}
+
+window.addEventListener('hashchange', function() {
+  buttonsState =
+    window.location.hash.length > 1
+      ? hexToBin(window.location.hash.substring(1))
+      : DEFAULT_BUTTONS_STATE;
+  updateButtonsWithState();
+});
